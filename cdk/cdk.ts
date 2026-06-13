@@ -11,12 +11,12 @@ const REQUIRED_RUNTIME_ENV_VARS = [
   'GOOGLE_CLIENT_ID',
   'GOOGLE_CLIENT_SECRET',
   'GOOGLE_REFRESH_TOKEN',
+  'SCHEDULING_DISPLAY_NAME',
 ] as const;
 
 const OPTIONAL_RUNTIME_ENV_VARS = [
   'BEDROCK_MODEL_ID',
   'GOOGLE_CALENDAR_ID',
-  'SCHEDULING_DISPLAY_NAME',
 ] as const;
 
 const REQUIRED_LAMBDA_ENV_VARS = ['SLACK_SIGNING_SECRET', 'SLACK_BOT_TOKEN', 'SLACK_TEAM_ID'] as const;
@@ -30,10 +30,14 @@ function requiredEnvironment(name: string) {
   return value;
 }
 
-// Runtimeへ渡す環境変数を作る
+// ランタイムへ渡す環境変数を作る
 function runtimeEnvironment(region: string) {
   const values: Record<string, string> = {
     AGENTCORE_BROWSER_REGION: region,
+    AGENT_OBSERVABILITY_ENABLED: 'true',
+    OTEL_EXPORTER_OTLP_PROTOCOL: 'http/protobuf',
+    OTEL_PYTHON_CONFIGURATOR: 'aws_configurator',
+    OTEL_PYTHON_DISTRO: 'aws_distro',
   };
 
   for (const name of REQUIRED_RUNTIME_ENV_VARS) {
@@ -66,12 +70,12 @@ function lambdaEnvironment(agentRuntimeArn: string) {
   return values;
 }
 
-// AgentCore RuntimeとSlack受信用Lambdaをデプロイする
+// AgentCoreランタイムとSlack受信用Lambdaをデプロイする
 class ChoseiAgentStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // agent/ をAgentCore Runtimeのコンテナとしてデプロイする
+    // agent/ をAgentCoreランタイムのコンテナとしてデプロイする
     const runtime = new Runtime(this, 'Runtime', {
       runtimeName: 'ChoseiAgent',
       agentRuntimeArtifact: AgentRuntimeArtifact.fromAsset(path.join(__dirname, '../../agent')),
@@ -79,7 +83,7 @@ class ChoseiAgentStack extends Stack {
       environmentVariables: runtimeEnvironment(Stack.of(this).region),
     });
 
-    // AgentCore Browser Toolを使うため、検証ではRuntimeへ広めのAgentCore権限を付ける
+    // AgentCore Browser Toolを使うため、検証ではランタイムへ広めのAgentCore権限を付ける
     runtime.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['bedrock-agentcore:*'],
@@ -95,7 +99,7 @@ class ChoseiAgentStack extends Stack {
       })
     );
 
-    // lambda/index.ts をSlack Events APIの受け口として公開する
+    // lambda/index.tsをSlack Events APIの受け口として公開する
     const slackAdapter = new NodejsFunction(this, 'SlackAdapter', {
       runtime: lambda.Runtime.NODEJS_22_X,
       entry: path.join(__dirname, '../../lambda', 'index.ts'),
@@ -109,7 +113,7 @@ class ChoseiAgentStack extends Stack {
       },
     });
 
-    // Slack受信用LambdaからAgentCore Runtimeを呼べるようにする
+    // Slack受信用LambdaからAgentCoreランタイムを呼べるようにする
     slackAdapter.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['bedrock-agentcore:InvokeAgentRuntime'],

@@ -12,7 +12,7 @@ from strands import tool
 JST = ZoneInfo("Asia/Tokyo")
 
 
-# Google OAuthのrefresh tokenからCalendar API用access tokenを取得する
+# GoogleカレンダーAPI用のアクセストークンを取得する
 def google_access_token() -> str:
     body = urllib.parse.urlencode(
         {
@@ -40,7 +40,7 @@ def parse_jst(value: str) -> datetime:
     return parsed.astimezone(JST)
 
 
-# Google Calendarから指定範囲に重なる予定を取得する
+# Googleカレンダーから指定範囲に重なる予定を取得する
 def calendar_events(time_min: datetime, time_max: datetime) -> list[tuple[datetime, datetime]]:
     calendar_id = urllib.parse.quote(os.getenv("GOOGLE_CALENDAR_ID", "primary"), safe="")
     query = urllib.parse.urlencode(

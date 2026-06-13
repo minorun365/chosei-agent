@@ -20,7 +20,7 @@ type WorkItem = {
   text: string;
 };
 
-// Slack Events APIのapp_mentionをAgentCore Runtimeに中継する
+// Slack Events APIのapp_mentionをAgentCoreランタイムに中継する
 export async function handler(event: any) {
   if (event.type === "run_agent") {
     return runAgent(event);
@@ -73,7 +73,7 @@ export async function handler(event: any) {
   return { statusCode: 200, body: "ok" };
 }
 
-// Slackへ即応答したあと、非同期呼び出しでAgentCore Runtimeを実行する
+// Slackへ即応答したあと、非同期呼び出しでAgentCoreランタイムを実行する
 async function enqueueWork(item: WorkItem) {
   await lambda.send(
     new InvokeCommand({
@@ -84,7 +84,7 @@ async function enqueueWork(item: WorkItem) {
   );
 }
 
-// AgentCore Runtimeの結果をSlackスレッドへ投稿する
+// AgentCoreランタイムの結果をSlackスレッドへ投稿する
 async function runAgent(item: WorkItem) {
   console.log("run_agent started", { sessionId: item.sessionId, channel: item.channel, threadTs: item.threadTs });
   try {
@@ -100,7 +100,7 @@ async function runAgent(item: WorkItem) {
   return { ok: true };
 }
 
-// Slack本文をAgentCore Runtimeのpromptとして渡す
+// Slack本文をAgentCoreランタイムのpromptとして渡す
 async function invokeRuntime(sessionId: string, prompt: string) {
   const response = await agentcore.send(
     new InvokeAgentRuntimeCommand({
@@ -117,7 +117,7 @@ async function invokeRuntime(sessionId: string, prompt: string) {
   return JSON.parse(text);
 }
 
-// AgentCore RuntimeのStreamingBlobを文字列に変換する
+// AgentCoreランタイムのStreamingBlobを文字列に変換する
 async function responseBodyText(body: unknown) {
   if (!body) return "{}";
   if (typeof body === "string") return body;
