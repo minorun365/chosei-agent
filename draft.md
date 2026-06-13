@@ -42,7 +42,7 @@ Slack App
   ↓ app_mention
 Lambda Function URL
   ├─ Slack署名検証
-  ├─ team / channel guard
+  ├─ チーム / チャンネル確認
   └─ Slackスレッド返信
   ↓ InvokeAgentRuntime
 AgentCore Runtime
@@ -470,7 +470,7 @@ async function invokeRuntime(sessionId: string, prompt: string) {
 
 `enqueueWork` では、同じ Lambda を非同期に呼び出しています。Slack には先に 200 を返し、時間のかかる AgentCore Runtime 呼び出しは後続処理に回します。
 
-署名検証、Slack への投稿、AgentCore Runtime のレスポンス変換、ヘッダー取得、team / channel の照合は、[GitHub リポジトリ][sample-code-repo]側に置きます。署名検証では、JSON に変換する前の raw body を使います。詳しくは [Verifying requests from Slack](https://docs.slack.dev/authentication/verifying-requests-from-slack/) を確認してください。
+署名検証、Slack への投稿、AgentCore Runtime のレスポンス変換、ヘッダー取得、チーム / チャンネルの照合は、[GitHub リポジトリ][sample-code-repo]側に置きます。署名検証では、JSON に変換する前の raw body を使います。詳しくは [Verifying requests from Slack](https://docs.slack.dev/authentication/verifying-requests-from-slack/) を確認してください。
 
 実際のコードでは、`SLACK_TEAM_ID` と `SLACK_CHANNEL_ID` のガードも入れています。検証中の Bot が、意図しない workspace や channel で反応しないようにするためです。
 

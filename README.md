@@ -19,9 +19,9 @@ Slack に日程調整ページの URL を投げると、Agent が候補日時を
 Slack App
   ↓ app_mention
 Lambda Function URL
-  ├─ Slack signature verification
-  ├─ team / channel guard
-  └─ Slack thread reply
+  ├─ Slack署名検証
+  ├─ チーム / チャンネル確認
+  └─ Slackスレッド返信
   ↓ InvokeAgentRuntime
 AgentCore Runtime
   ├─ Strands Agent
