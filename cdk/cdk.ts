@@ -99,7 +99,6 @@ class ChoseiAgentStack extends Stack {
       })
     );
 
-    // 初めて第三者モデルを使うアカウントでも、Bedrock経由の自動サブスクリプションを通せるようにする
     runtime.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['aws-marketplace:Subscribe', 'aws-marketplace:ViewSubscriptions', 'aws-marketplace:Unsubscribe'],

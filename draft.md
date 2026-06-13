@@ -57,7 +57,8 @@ LambdaはSlackの受け口だけを担当します。Slackの署名を検証し�
 この記事ではMacでローカル開発します。WindowsやLinuxの方は、パスやシェルコマンドを読み替えてください。
 以下を準備してから、次の手順に進みましょう。
 
-- AWSアカウント
+- AWSアカウントの作成
+- Amazon BedrockのプレイグラウンドからClaudeモデルの初回呼び出し
 - AWS CLI v2（[インストール手順](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)）
 - Node.jsとnpm（v22以上）
 - Docker Desktopなど、Dockerイメージをビルドできる環境。
@@ -510,7 +511,6 @@ class ChoseiAgentStack extends Stack {
       })
     );
 
-    // 初めて第三者モデルを使うアカウントでも、Bedrock経由の自動サブスクリプションを通せるようにする
     runtime.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['aws-marketplace:Subscribe', 'aws-marketplace:ViewSubscriptions', 'aws-marketplace:Unsubscribe'],
@@ -573,10 +573,6 @@ class ChoseiAgentStack extends Stack {
 CloudWatchへトレースを送るため、ランタイム側には `AGENT_OBSERVABILITY_ENABLED`、 `OTEL_PYTHON_DISTRO`、 `OTEL_PYTHON_CONFIGURATOR`、 `OTEL_EXPORTER_OTLP_PROTOCOL` も渡しています。
 
 検証を短く進めるため、AgentCoreブラウザ関連のランタイム権限は広めにしています。本番に近づけるときは、CloudTrailや実行ログを見ながら必要なアクションに絞ってください。
-
-初めてそのAWSアカウントでAnthropicなどの第三者モデルを呼び出す場合、Bedrockが初回呼び出し時にAWS Marketplaceのサブスクリプションを自動で有効化します。そのため、ランタイムロールには `aws-marketplace:Subscribe`、 `aws-marketplace:ViewSubscriptions`、 `aws-marketplace:Unsubscribe` も付与しています。ここではBedrock経由の呼び出しだけに絞るため、 `aws:CalledViaLast` 条件を付けています。
-
-なお、Anthropicモデルでは権限とは別に、AWSアカウント単位で初回利用フォームの提出が必要です。BedrockコンソールのモデルカタログからAnthropicモデルを開き、ユースケース情報を一度登録しておいてください。
 
 ## Googleカレンダーの認証情報を用意する
 
