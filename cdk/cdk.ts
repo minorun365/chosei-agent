@@ -99,6 +99,19 @@ class ChoseiAgentStack extends Stack {
       })
     );
 
+    // 初めて第三者モデルを使うアカウントでも、Bedrock経由の自動サブスクリプションを通せるようにする
+    runtime.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['aws-marketplace:Subscribe', 'aws-marketplace:ViewSubscriptions', 'aws-marketplace:Unsubscribe'],
+        resources: ['*'],
+        conditions: {
+          StringEquals: {
+            'aws:CalledViaLast': 'bedrock.amazonaws.com',
+          },
+        },
+      })
+    );
+
     // lambda/index.tsをSlack Events APIの受け口として公開する
     const slackAdapter = new NodejsFunction(this, 'SlackAdapter', {
       runtime: lambda.Runtime.NODEJS_22_X,

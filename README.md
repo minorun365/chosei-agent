@@ -107,3 +107,5 @@ npx cdk deploy
 このサンプルは Google Calendar の予定を読みますが、Slack には予定タイトルを返しません。カレンダー確認用のツールは、候補日時ごとに予定あり / 予定なしだけを返します。
 
 AgentCore Browser Tool まわりの Runtime IAM 権限は、サンプルとして動かしやすいよう広めにしています。本番に近い環境で使う場合は、必要な action に絞ってください。
+
+初めてその AWS アカウントで Anthropic などの第三者 Bedrock モデルを呼び出す場合、Bedrock が AWS Marketplace のサブスクリプションを自動で有効化します。このため Runtime ロールには Bedrock 経由に限定した `aws-marketplace:Subscribe`、 `aws-marketplace:ViewSubscriptions`、 `aws-marketplace:Unsubscribe` を付与しています。Anthropic モデルでは、別途 Bedrock コンソールで初回利用フォームの提出も必要です。

@@ -129,10 +129,10 @@ npm install -D aws-cdk typescript @types/node esbuild
 
 ```text
 aws-opentelemetry-distro
-bedrock-agentcore>=1.14.1
+bedrock-agentcore
 nest-asyncio
-playwright>=1.58.0
-strands-agents>=1.35.1
+playwright
+strands-agents
 strands-agents-tools
 ```
 
@@ -510,6 +510,19 @@ class ChoseiAgentStack extends Stack {
       })
     );
 
+    // 初めて第三者モデルを使うアカウントでも、Bedrock経由の自動サブスクリプションを通せるようにする
+    runtime.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['aws-marketplace:Subscribe', 'aws-marketplace:ViewSubscriptions', 'aws-marketplace:Unsubscribe'],
+        resources: ['*'],
+        conditions: {
+          StringEquals: {
+            'aws:CalledViaLast': 'bedrock.amazonaws.com',
+          },
+        },
+      })
+    );
+
     // lambda/index.tsをSlack Events APIの受け口として公開する
     const slackAdapter = new NodejsFunction(this, 'SlackAdapter', {
       runtime: lambda.Runtime.NODEJS_22_X,
@@ -560,6 +573,10 @@ class ChoseiAgentStack extends Stack {
 CloudWatchへトレースを送るため、ランタイム側には `AGENT_OBSERVABILITY_ENABLED`、 `OTEL_PYTHON_DISTRO`、 `OTEL_PYTHON_CONFIGURATOR`、 `OTEL_EXPORTER_OTLP_PROTOCOL` も渡しています。
 
 検証を短く進めるため、AgentCoreブラウザ関連のランタイム権限は広めにしています。本番に近づけるときは、CloudTrailや実行ログを見ながら必要なアクションに絞ってください。
+
+初めてそのAWSアカウントでAnthropicなどの第三者モデルを呼び出す場合、Bedrockが初回呼び出し時にAWS Marketplaceのサブスクリプションを自動で有効化します。そのため、ランタイムロールには `aws-marketplace:Subscribe`、 `aws-marketplace:ViewSubscriptions`、 `aws-marketplace:Unsubscribe` も付与しています。ここではBedrock経由の呼び出しだけに絞るため、 `aws:CalledViaLast` 条件を付けています。
+
+なお、Anthropicモデルでは権限とは別に、AWSアカウント単位で初回利用フォームの提出が必要です。BedrockコンソールのモデルカタログからAnthropicモデルを開き、ユースケース情報を一度登録しておいてください。
 
 ## Googleカレンダーの認証情報を用意する
 
