@@ -472,7 +472,7 @@ CDKでは、AgentCoreランタイムとSlack受信用Lambdaを同じスタック
 `cdk/cdk.ts` の役割は4つです。
 
 - `agent/` をAgentCoreランタイムとしてデプロイする
-- `lambda/index.ts` をLambda Function URLとして公開する
+- `lambda/index.ts` をLambda 関数URLとして公開する
 - Lambdaからランタイムを呼べるIAM権限を付ける
 - Lambdaが自分自身を非同期に呼べるIAM権限を付ける
 
@@ -601,7 +601,7 @@ Slack側では、BotがメンションされたときだけLambdaにイベント
 4. Basic InformationでSigning Secretを控えます。
 5. 投稿先にしたいSlackチャンネルへBotを招待します。
 
-Event SubscriptionsのRequest URLは、CDKデプロイ後に出力されるLambda Function URLを入れます。この時点では、まだ空のままで構いません。控える値は以下の4つです。
+Event SubscriptionsのRequest URLは、CDKデプロイ後に出力されるLambda 関数URLを入れます。この時点では、まだ空のままで構いません。控える値は以下の4つです。
 
 - `SLACK_SIGNING_SECRET`
 - `SLACK_BOT_TOKEN`
@@ -637,6 +637,9 @@ export SLACK_BOT_TOKEN="xoxb-..."
 export SLACK_TEAM_ID="T..."
 export SLACK_CHANNEL_ID="C..."
 ```
+
+> **注意**
+> 今回は簡易ハンズオンのため、GoogleやSlackのシークレットを環境変数で渡しています。本番ではAWS Secrets ManagerやAWS Systems Manager Parameter StoreのSecureStringに置き、実行時に取得する構成にしてください。
 
 初めてそのAWSアカウントとリージョンでCDKを使う場合は、bootstrapを実行します。
 

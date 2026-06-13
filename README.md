@@ -6,7 +6,7 @@ Slack に日程調整ページの URL を投げると、Agent が候補日時を
 
 ## できること
 
-- Slack の `app_mention` を Lambda Function URL で受け取る
+- Slack の `app_mention` を Lambda 関数URLで受け取る
 - Slack リクエストの署名を検証する
 - AgentCore Runtime 上の Strands Agent に依頼文を渡す
 - AgentCore Browser Tool で日程調整ページを開く
@@ -18,7 +18,7 @@ Slack に日程調整ページの URL を投げると、Agent が候補日時を
 ```text
 Slack App
   ↓ app_mention
-Lambda Function URL
+Lambda 関数URL
   ├─ Slack署名検証
   ├─ チーム / チャンネル確認
   └─ Slackスレッド返信
