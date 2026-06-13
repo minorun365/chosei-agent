@@ -147,7 +147,7 @@ async function responseBodyText(body: unknown) {
 
 // Agentの結果をSlackスレッドに返信する
 async function postSlack(channel: string, threadTs: string, text: string) {
-  await fetch("https://slack.com/api/chat.postMessage", {
+  const response = await fetch("https://slack.com/api/chat.postMessage", {
     method: "POST",
     headers: {
       authorization: `Bearer ${process.env.SLACK_BOT_TOKEN}`,
@@ -155,6 +155,8 @@ async function postSlack(channel: string, threadTs: string, text: string) {
     },
     body: JSON.stringify({ channel, thread_ts: threadTs, text }),
   });
+  const data = (await response.json()) as { ok?: boolean; error?: string };
+  if (!data.ok) throw new Error(`Slack chat.postMessage failed: ${data.error ?? response.status}`);
 }
 
 // Slack公式のv0署名をHMACで検証する

@@ -59,7 +59,7 @@ LambdaはSlackの受け口だけを担当します。Slackの署名を検証し�
 
 - AWSアカウントの作成
 - Amazon BedrockのプレイグラウンドからClaudeモデルの初回呼び出し
-- AWS CLI v2（[インストール手順](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)）
+- AWS CLI v2の最新バージョン（[インストール手順](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)）
 - Node.jsとnpm（v22以上）
 - Docker Desktopなど、Dockerイメージをビルドできる環境。
 - Python 3.10以上
@@ -631,8 +631,15 @@ curl -H "Authorization: Bearer $SLACK_BOT_TOKEN" https://slack.com/api/auth.test
 
 ## デプロイする
 
-必要な値を、作業PCのターミナルで環境変数に入れます。
-`...` の部分は、それぞれ自分の値に置き換えてください。
+AWS CLIは `aws login` で認証します。ブラウザが開いたら、デプロイ先にしたいAWSアカウントでログインしてください。
+
+```sh
+aws login
+aws sts get-caller-identity
+```
+
+複数のAWSアカウントを使っている場合は、ここで表示される `Account` がデプロイ先と一致しているか確認してください。
+その後、必要な値を作業PCのターミナルで環境変数に入れます。`...` の部分は、それぞれ自分の値に置き換えてください。
 
 ```sh
 export AWS_REGION="ap-northeast-1"
