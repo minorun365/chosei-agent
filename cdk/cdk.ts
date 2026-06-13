@@ -71,10 +71,10 @@ class ChoseiAgentStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // runtime/ をAgentCore Runtimeのコンテナとしてデプロイする
+    // agent/ をAgentCore Runtimeのコンテナとしてデプロイする
     const runtime = new Runtime(this, 'Runtime', {
       runtimeName: 'ChoseiAgent',
-      agentRuntimeArtifact: AgentRuntimeArtifact.fromAsset(path.join(__dirname, '../../runtime')),
+      agentRuntimeArtifact: AgentRuntimeArtifact.fromAsset(path.join(__dirname, '../../agent')),
       protocolConfiguration: ProtocolType.HTTP,
       environmentVariables: runtimeEnvironment(Stack.of(this).region),
     });

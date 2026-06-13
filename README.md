@@ -38,11 +38,11 @@ Slack 固有の処理は Lambda に閉じ込めています。日程調整ペー
 ├── cdk.json
 ├── package.json
 ├── tsconfig.json
-├── infra/
+├── cdk/
 │   └── cdk.ts
 ├── lambda/
 │   └── index.ts
-└── runtime/
+└── agent/
     ├── Dockerfile
     ├── calendar_tool.py
     ├── main.py

@@ -76,7 +76,7 @@ AWS のリージョンは `ap-northeast-1` を使います。
 ```sh
 mkdir chosei-agent
 cd chosei-agent
-mkdir -p runtime lambda infra
+mkdir -p agent lambda cdk
 ```
 
 今回は `cdk init app --language typescript` は使いません。CDK の標準テンプレートは `bin/` や `lib/` などを作ってくれるので、CDK に慣れている人には自然です。ただ、この記事では Runtime、Lambda、CDK の3つを横に並べた方が、どのコードが何をしているか追いやすくなります。
@@ -88,18 +88,18 @@ chosei-agent/
 ├── cdk.json
 ├── package.json
 ├── tsconfig.json
-├── infra/
+├── cdk/              # AWS CDK でインフラを定義する
 │   └── cdk.ts
-├── lambda/
+├── lambda/           # Slack Events API の入口になる Lambda
 │   └── index.ts
-└── runtime/
+└── agent/            # AgentCore Runtime で動くエージェント本体
     ├── calendar_tool.py
     ├── Dockerfile
     ├── main.py
     └── requirements.txt
 ```
 
-CDK の作法に慣れている方は、`cdk init` で作った `bin/` / `lib/` 構成に読み替えても問題ありません。ここでは、`runtime/` を AgentCore Runtime のコンテナとしてデプロイし、`lambda/` を Slack の入口として置く、という関係だけ押さえてください。
+CDK の作法に慣れている方は、`cdk init` で作った `bin/` / `lib/` 構成に読み替えても問題ありません。ここでは、`agent/` を AgentCore Runtime のコンテナとしてデプロイし、`lambda/` を Slack の入口として置く、という関係だけ押さえてください。
 
 Node.js 側の依存関係を入れます。
 
@@ -124,15 +124,15 @@ npm install -D aws-cdk typescript @types/node esbuild
 
 ```json
 {
-  "app": "node dist/infra/cdk.js"
+  "app": "node dist/cdk/cdk.js"
 }
 ```
 
 ## Runtimeを作る
 
-まずエージェント本体を置く `runtime/` から作ります。Slack から届いた文章を受け取り、Strands Agent に渡す部分です。
+まずエージェント本体を置く `agent/` から作ります。Slack から届いた文章を受け取り、Strands Agent に渡す部分です。
 
-`runtime/requirements.txt` に必要な Python パッケージを書きます。
+`agent/requirements.txt` に必要な Python パッケージを書きます。
 
 ```text
 aws-opentelemetry-distro
@@ -143,7 +143,7 @@ strands-agents>=1.35.1
 strands-agents-tools
 ```
 
-Browser Tool も使うため、Runtime はコンテナで動かします。`runtime/Dockerfile` は最小限にします。
+Browser Tool も使うため、Runtime はコンテナで動かします。`agent/Dockerfile` は最小限にします。
 
 ```dockerfile
 FROM public.ecr.aws/docker/library/python:3.13-slim
@@ -160,7 +160,7 @@ EXPOSE 8080
 CMD ["python", "main.py"]
 ```
 
-Google カレンダーを見る処理は `runtime/calendar_tool.py` に分けます。Runtime の入口と外部 API の処理を分けておくと、あとで読み返したときに迷いにくくなります。
+Google カレンダーを見る処理は `agent/calendar_tool.py` に分けます。Runtime の入口と外部 API の処理を分けておくと、あとで読み返したときに迷いにくくなります。
 
 ここでは候補日時の配列を受け取り、それぞれについて `○` / `×` を返す `check_availability` を作ります。Agent には、候補開始時刻を JST の ISO 8601 形式にしてからこのツールを呼ぶように伝えます。
 
@@ -272,7 +272,7 @@ def check_availability(candidates: list[str], duration_minutes: int = 60) -> lis
 
 Calendar API から予定タイトルは取りません。ツールの返却値も `予定あり` / `予定なし` と `○` / `×` だけにしています。Slack に予定名を出さないためです。
 
-次に `runtime/main.py` を作ります。Slack から届いた本文を `prompt` として受け取り、Strands Agent に渡すファイルです。
+次に `agent/main.py` を作ります。Slack から届いた本文を `prompt` として受け取り、Strands Agent に渡すファイルです。
 
 ```python
 from __future__ import annotations
@@ -480,9 +480,9 @@ Slack はイベント受信側に素早い 2xx 応答を期待します。今回
 
 CDK では、AgentCore Runtime と Slack受信用 Lambda を同じスタックに置きます。
 
-`infra/cdk.ts` の役割は4つです。
+`cdk/cdk.ts` の役割は4つです。
 
-- `runtime/` を AgentCore Runtime としてデプロイする
+- `agent/` を AgentCore Runtime としてデプロイする
 - `lambda/index.ts` を Lambda Function URL として公開する
 - Lambda から Runtime を呼べる IAM 権限を付ける
 - Lambda が自分自身を非同期に呼べる IAM 権限を付ける
@@ -497,10 +497,10 @@ class ChoseiAgentStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // runtime/ をAgentCore Runtimeのコンテナとしてデプロイする
+    // agent/ をAgentCore Runtimeのコンテナとしてデプロイする
     const runtime = new Runtime(this, 'Runtime', {
       runtimeName: 'ChoseiAgent',
-      agentRuntimeArtifact: AgentRuntimeArtifact.fromAsset(path.join(__dirname, '../../runtime')),
+      agentRuntimeArtifact: AgentRuntimeArtifact.fromAsset(path.join(__dirname, '../../agent')),
       protocolConfiguration: ProtocolType.HTTP,
       environmentVariables: runtimeEnvironment(Stack.of(this).region),
     });
@@ -567,7 +567,7 @@ class ChoseiAgentStack extends Stack {
 }
 ```
 
-実際の `infra/cdk.ts` には、このほかに必須環境変数を確認する関数、Runtime / Lambda へ渡す環境変数を組み立てる関数、CloudFormation Output なども入っています。
+実際の `cdk/cdk.ts` には、このほかに必須環境変数を確認する関数、Runtime / Lambda へ渡す環境変数を組み立てる関数、CloudFormation Output なども入っています。
 
 検証を短く進めるため、Browser Tool まわりの Runtime 権限は広めにしています。本番に近づけるときは、CloudTrail や実行ログを見ながら必要な action に絞ってください。
 

@@ -11,6 +11,6 @@
     "rootDir": ".",
     "outDir": "dist"
   },
-  "include": ["infra/cdk.ts"],
+  "include": ["cdk/cdk.ts"],
   "exclude": ["node_modules", "cdk.out", "dist"]
 }
