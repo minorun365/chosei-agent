@@ -12,7 +12,7 @@ AIエージェントというと、専用のチャット画面を用意して、
 
 ![Slackで日程調整エージェントが結果を返している画面](images/slack-agent-result.png)
 
-このサンプルでは、エージェントの中身を[Strands Agents](https://strandsagents.com/)で書きます。
+このサンプルでは、エージェントの中身をStrands Agents（https://strandsagents.com/）で書きます。
 Strands Agentsは、モデル・システムプロンプト・ツールを組み合わせてエージェントを作るためのオープンソースSDKです。簡単なコードで賢いエージェントを書けるのが特徴で、PythonとTypeScriptに対応しています。
 
 そのStrands AgentをAWS上で動かす場所として、最新サービスのAmazon Bedrock AgentCoreを使います。AgentCoreの「ランタイム」という実行環境で動くエージェントが、AgentCoreの「ブラウザ」ツールを使って調整ページへの記入を行います。
@@ -21,7 +21,7 @@ Strands Agentsは、モデル・システムプロンプト・ツールを組み
 
 この記事では、Macでローカル開発する場合を例にハンズオンの流れをざっくり紹介します。WindowsやLinuxの方は、パスやシェルコマンドを適宜読み替えてください。
 
-完全なコードは、[GitHubリポジトリ](https://github.com/minorun365/chosei-agent)で公開しています。本文では、手順を上から追えるようにしながら、載せるコードは主要部だけに絞っています。
+完全なコードは、GitHubリポジトリ（https://github.com/minorun365/chosei-agent）で公開しています。本文では、手順を上から追えるようにしながら、載せるコードは主要部だけに絞っています。
 
 ## 作るもの
 
@@ -579,7 +579,7 @@ CloudWatchへトレースを送るため、ランタイム側には `AGENT_OBSER
 ここからAWS以外の、外部サービスの設定に移ります。
 Googleカレンダーは予定の読み取りだけに使います。Google Cloudコンソールで設定をしましょう。
 
-細かい画面操作は[GoogleカレンダーAPIのドキュメント](https://developers.google.com/workspace/calendar/api/quickstart/python)を参照してください。ここでは、今回必要な作業だけを書きます。
+細かい画面操作はGoogleカレンダーAPIのドキュメント（https://developers.google.com/workspace/calendar/api/quickstart/python）を参照してください。ここでは、今回必要な作業だけを書きます。
 
 1. Google Cloudコンソールで検証用プロジェクトを作る、または既存プロジェクトを選びます。
 2. GoogleカレンダーAPIを有効化します。
@@ -606,7 +606,7 @@ https://www.googleapis.com/auth/calendar.readonly
 
 Slack側では、BotがメンションされたときだけLambdaにイベントを送るAppを作ります。
 
-[Slack APIのYour Apps画面](https://api.slack.com/apps)から、検証用workspaceにAppを作ります。イベント設定の考え方は[Slack Events APIのドキュメント](https://docs.slack.dev/apis/events-api/)も参照してください。最初に触るのは次の項目です。
+Slack APIのYour Apps画面（https://api.slack.com/apps）から、検証用workspaceにAppを作ります。イベント設定の考え方はSlack Events APIのドキュメント（https://docs.slack.dev/apis/events-api/）も参照してください。最初に触るのは次の項目です。
 
 1. AppをFrom scratchで作ります。
 2. OAuth & PermissionsでBot Token Scopesに `app_mentions:read` と `chat:write` を追加します。
@@ -693,7 +693,7 @@ https://example.com/schedule/...
 
 ## おわりに
 
-うまく動かない場合は、[GitHubのIssues](https://github.com/minorun365/chosei-agent/issues)を投稿いただければ、ベストエフォートで解決のお手伝いをさせていただきます。
+うまく動かない場合は、GitHubのIssues（https://github.com/minorun365/chosei-agent/issues）へ投稿いただければ、ベストエフォートで解決のお手伝いをさせていただきます。
 
 AgentCoreについては、AWSコミュニティの仲間と入門書を先日出版しましたので、もっと学びたい方はぜひお手に取ってみてください！
 
